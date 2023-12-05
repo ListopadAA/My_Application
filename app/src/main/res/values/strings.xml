@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="sales_icon">Sales</string>
+    <string name="events_text">События</string>
+    <string name="contacts_text">Контакты</string>
+    <string name="profile_text">Профиль</string>
+    <string name="main_scene_text">Главная</string>
+    <string name="logo_of_app_1">AksDev</string>
+    <string name="logo_of_app_2">App</string>
+</resources>
