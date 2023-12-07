@@ -1,4 +1,4 @@
-package com.example.myapplication.feature.authorization.presentation.login
+package com.example.myapplication.feature.authorization.presentation.signup
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,24 +13,24 @@ import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.core.doOnStarted
 import com.example.myapplication.core.update
-import com.example.myapplication.databinding.LoginFragmentBinding
+import com.example.myapplication.databinding.SigninFragmentBinding
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
 
-class LoginFragment : Fragment() {
+class SignUpFragment : Fragment() {
+
+    private lateinit var binding: SigninFragmentBinding
+
+    private val viewModel: SignUpViewModel by viewModels()
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    private lateinit var binding: LoginFragmentBinding
-
-    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = LoginFragmentBinding.inflate(inflater, container, false)
+        binding = SigninFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -45,56 +45,52 @@ class LoginFragment : Fragment() {
         }
         viewLifecycleOwner.doOnStarted {
             viewModel.errorEvent.collectLatest {
-                handleEvent(it)
+                handleEvents(it)
             }
         }
-
-        if (isUserAuthorized()) {
-            findNavController().navigate(R.id.casesFragment)
-        }
-    }
-
-    private fun isUserAuthorized(): Boolean {
-        return auth.currentUser != null
     }
 
     private fun initViews() = with(binding) {
-        etLogin.doAfterTextChanged {
+        etSignUp.doAfterTextChanged {
             viewModel.onLoginChanged(it.toString())
         }
-        etLoginPassword.doAfterTextChanged {
+        etSignUpPassword.doAfterTextChanged {
             viewModel.onPasswordChanged(it.toString())
         }
-        btnLogin.setOnClickListener {
-            viewModel.onLoginClicked()
+        etSignUpRepeatPassword.doAfterTextChanged {
+            viewModel.onRepeatPasswordChanged(it.toString())
         }
         btnSignUp.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment)
+            viewModel.onSignUpClicked()
         }
     }
 
-    private fun updateUi(loginState: LoginState) = with(binding) {
-        etLogin.update(loginState.login)
-        etLoginPassword.update(loginState.password)
+    private fun updateUi(loginState: SignUpState) = with(binding) {
+        etSignUp.update(loginState.login)
+        etSignUpPassword.update(loginState.password)
+        etSignUpRepeatPassword.update(loginState.repeatPassword)
     }
 
-    private fun handleEvent(event: LoginEvent) {
+    private fun handleEvents(event: SignUpEvent) {
         when (event) {
-            is LoginEvent.LogIn -> {
-                auth.signInWithEmailAndPassword(event.login, event.password)
+            is SignUpEvent.SignUp -> {
+                auth.createUserWithEmailAndPassword(event.login, event.password)
                     .addOnCompleteListener(requireActivity()) { task ->
                         if (task.isSuccessful) {
                             findNavController().navigate(R.id.casesFragment)
                         } else {
                             Toast.makeText(
                                 requireContext(),
-                                "Authentication failed.",
+                                "Что-то пошло не так",
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }
             }
 
+            is SignUpEvent.Error -> {
+                Toast.makeText(requireContext(), "Пароли не совпадают", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
