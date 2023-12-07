@@ -9,4 +9,9 @@
         android:name="com.example.myapplication.feature.authorization.presentation.login.LoginFragment"
         android:label="LoginFragment" />
 
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.myapplication.feature.authorization.presentation.signup.SignUpFragment"
+        android:label="SignUpFragment" />
+
 </navigation>
